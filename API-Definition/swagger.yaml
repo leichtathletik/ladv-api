@@ -1,0 +1,85 @@
+swagger: "2.0"
+info:
+  version: "2.010"
+  title: "LADV Schnittstelle"
+host: "ladv.de"
+basePath: "/api"
+schemes:
+- "https"
+paths:
+  /athletQuery:
+    get:
+      summary: "FunktionSuche von Athleten"
+      description: "Funktion zur Suche von Athleten über Athletennummer oder Athletenname (auch Namensteile)."
+      operationId: "athletQuery"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "query"
+        description: "Suchstring für den Athletennamen oder eine Athletennummer. Mindestens zwei Buchstaben. Der erste und letzte Buchstabe dürfen Wildcards (*) sein. Bei Namen kann Vorname und Nachname durch ein Leerzeichen getrennt angegeben werden."
+        required: true
+        type: "string"
+      - in: "query"
+        name: "lv"
+        description: "Einschränkung der Athletensuche auf einen Landesverband. Siehe Landesverbandskennzeichen oder die lvList Abfrage für eine Liste der gültigen Werte."
+        required: false
+        type: "string"
+      - in: "query"
+        name: "limit"
+        description: "Anzahl der Athleten"
+        default: 10
+        maximum: 50
+        minimum: 1
+        required: false
+        type: "number"
+      - in: "query"
+        name: "format"
+        description: "Antwort Format"
+        required: false
+        type: "string"
+      responses:
+        200:
+           description: "Erfolgreich"
+           schema: 
+            type: "array"
+            items: 
+              $ref: "#/definitions/Athlete"
+        405:
+          description: "Ungültige Eingabe"
+definitions:
+  Athlete:
+    type: "object"
+    required: ["id", "athletnumber", "forename", "surname", "birthyear", "sex", "vereinnumber", "lv"]
+    properties:
+      id:
+        type: "integer"
+        format: "int32"
+        example: 8611
+      athletnumber:
+        type: "integer"
+        format: "int32"
+        example: 26109
+      forename:
+        type: "string"
+        example: "Pascal"
+      surname:
+        type: "string"
+        example: "Burten"
+      birthyear:
+        type: "integer"
+        format: "int32"
+        example: "1993"
+      sex:
+        type: "string"
+        description: "Geschlecht"
+        enum:
+        - "M"
+        - "W"
+      vereinnumber:
+        type: "integer"
+        format: "int32"
+        example: 26109
+      lv:
+        type: "string"
+        example: "WÜ"
