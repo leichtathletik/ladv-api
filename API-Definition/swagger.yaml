@@ -1,0 +1,211 @@
+swagger: '2.0'
+info:
+  version: '2.010'
+  title: LADV Schnittstelle
+host: ladv.de
+basePath: /api
+schemes:
+  - https
+paths:
+  /athletQuery:
+    get:
+      summary: FunktionSuche von Athleten
+      description:
+        Funktion zur Suche von Athleten über Athletennummer oder Athletenname
+        (auch Namensteile).
+      operationId: athletQuery
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: query
+          description: >-
+            Suchstring für den Athletennamen oder eine Athletennummer.
+            Mindestens zwei Buchstaben. Der erste und letzte Buchstabe dürfen
+            Wildcards (*) sein. Bei Namen kann Vorname und Nachname durch ein
+            Leerzeichen getrennt angegeben werden.
+          required: true
+          type: string
+        - in: query
+          name: lv
+          description: >-
+            Einschränkung der Athletensuche auf einen Landesverband. Siehe
+            Landesverbandskennzeichen oder die lvList Abfrage für eine Liste der
+            gültigen Werte.
+          required: false
+          type: string
+        - in: query
+          name: limit
+          description: Anzahl der Athleten
+          default: 10
+          maximum: 50
+          minimum: 1
+          required: false
+          type: number
+        - in: query
+          name: format
+          description: Antwort Format
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Erfolgreich
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Athlete'
+        '405':
+          description: Ungültige Eingabe
+  /vedList:
+    get:
+      summary:
+        Funktion zum Abfragen von Veranstaltungslisten
+      operationId: vedList
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: lv
+          description: >-
+            Landesverbandskennzeichen. Es werden alle Veranstaltungen (Ergebnisse) zurückgegeben die für den Landesverband relevant sind.
+          required: false
+          type: string
+        - in: query
+          name: homelv
+          description: >-
+            Landesverbandskennzeichen. Es werden alle Veranstaltungen (Ergebnisse) zurückgegeben die auf dem Gebiet des Landesverbandes stattgefunden haben.
+          required: false
+          type: string
+        - in: query
+          name: orTags
+          description: >-
+            Durch Komma getrennte Liste an Tags die “ODER” verknüpft werden. Das Ergebnis beinhaltet alle Veranstaltungen die mindestens eines dieser Tags haben. Maximal drei Tags sind möglich. Bei Verwendung von
+          required: false
+          type: string
+        - in: query
+          name: andTags
+          description: >-
+            Durch Komma getrennte Liste an Tags die “UND” verknüpft werden. Das Ergebnis beinhaltet alle Veranstaltungen die alle angegebenen Tags haben. Maximal drei Tags sind möglich. Bei Verwendung von andTags ist die angabe von orTags nicht möglich. Übergeben wird der displayName aus ​tagList.​
+          required: false
+          type: string
+        - in: query
+          name: withoutTags
+          description: >-
+            Durch Komma getrennte Liste an Tags. Das Ergebnis beinhaltet nur Veranstaltungen bei denen keines der angegebenen Tags vorhanden ist. Maximal fünf sind möglich. Übergeben wird der displayName aus tagList.
+          required: false
+          type: string
+        - in: query
+          name: datayear
+          description: >-
+            Nur Veranstaltungen im Jahr. Jahresangebe ist vierstelli
+          required: false
+          type: number
+        - in: query
+          name: month
+          description: >-
+            Nur Veranstaltungen im angegebenen Monat. Monatsangabe ist ein oder zweistellig und beginnt mit 1. Liste an gültigen Werten siehe Monatsangabe​. Bei ungültigen Werte wird die Anfrage abgelehnt.
+          required: false
+          type: number
+        - in: query
+          name: limit
+          default: 20
+          maximum: 200
+          minimum: 1
+          required: false
+          type: number
+        - in: query
+          name: order
+          description: Sortierung der Veranstaltungsliste nach Datum.
+          default: DESC
+          required: false
+          type: string
+          enum:
+          - ASC
+          - DESC
+        - in: query
+          name: format
+          description: Antwort Format
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Erfolgreich
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Veranstaltung'
+        '405':
+          description: Ungültige Eingabe
+definitions:
+  Veranstaltung:
+    type: object
+    required:
+      - id
+      - name
+      - ort
+      - ortid
+      - datum
+      - datumText
+      - url
+    properties:
+      id:
+        type: integer
+        format: int32
+        example: 215
+      name:
+        type: string
+        example: "Heilbronn"
+      ortid:
+        type: integer
+        format: int32
+        example: 70
+      datum:
+        type: number
+        format: date
+        example: 1180648800000
+      url:
+        type: string
+        example: "https://ladv.de/veranstaltung/detail/21" 
+  Athlete:
+    type: object
+    required:
+      - id
+      - athletnumber
+      - forename
+      - surname
+      - birthyear
+      - sex
+      - vereinnumber
+      - lv
+    properties:
+      id:
+        type: integer
+        format: int32
+        example: 8611
+      athletnumber:
+        type: integer
+        format: int32
+        example: 26109
+      forename:
+        type: string
+        example: Pascal
+      surname:
+        type: string
+        example: Burten
+      birthyear:
+        type: integer
+        format: int32
+        example: '1993'
+      sex:
+        type: string
+        description: Geschlecht
+        enum:
+          - M
+          - W
+      vereinnumber:
+        type: integer
+        format: int32
+        example: 26109
+      lv:
+        type: string
+        example: WÜ
